@@ -197,8 +197,6 @@ class Bench:
             subprocess.run(cmd, check=True)
             keys += [Key.from_file(filename)]
 
-
-        
         json_file = open('./ips.json')
         temp = json.load(json_file)
         names = []
@@ -207,8 +205,9 @@ class Bench:
             names.append(info['name'])
             for x in info['ip']:
                 hosts.append(x)
-                
-            
+        # print("here11")
+        # print(hosts)        
+        
         if bench_parameters.collocate:
             workers = bench_parameters.workers
             addresses = OrderedDict(
@@ -218,14 +217,18 @@ class Bench:
             addresses = OrderedDict(
                 (x, y) for x, y in zip(names, hosts)
             )
+        print(addresses)
         committee = Committee(addresses, 5000)
         committee.print(PathMaker.committee_file())
 
         node_parameters.print(PathMaker.parameters_file())
 
         # Cleanup all nodes and upload configuration files.
+        
         names = names[:len(names)-bench_parameters.faults]
         progress = progress_bar(names, prefix='Uploading config files:')
+        print("here")
+        print(bench_parameters.faults)
         for i, name in enumerate(progress):
             for ip in committee.ips(name):
                 c = Connection(ip, user='root', connect_kwargs=self.connect)

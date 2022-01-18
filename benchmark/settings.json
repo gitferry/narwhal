@@ -6,7 +6,7 @@
     "port": 5000,
     "repo": {
         "name": "narwhal",
-        "url": "https://github.com/gitferry/narwhal.git",
+        "url": "https://github.com/gitferry/narwhal",
         "branch": "use_input_ips"
     },
     "instances": {
