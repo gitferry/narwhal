@@ -1,5 +1,6 @@
 # Copyright(C) Facebook, Inc. and its affiliates.
 from collections import OrderedDict
+from re import template
 from fabric import Connection, ThreadingGroup as Group
 from fabric.exceptions import GroupException
 from paramiko import RSAKey
@@ -9,7 +10,7 @@ from time import sleep
 from math import ceil
 from copy import deepcopy
 import subprocess
-
+import json
 from benchmark.config import Committee, Key, NodeParameters, BenchParameters, ConfigError
 from benchmark.utils import BenchError, Print, PathMaker, progress_bar
 from benchmark.commands import CommandMaker
@@ -54,6 +55,7 @@ class Bench:
     def install(self):
         Print.info('Installing rust and cloning the repo...')
         cmd = [
+            'sudo apt update',
             'sudo apt-get update',
             'sudo apt-get -y upgrade',
             'sudo apt-get -y autoremove',
@@ -68,14 +70,26 @@ class Bench:
             'rustup default stable',
 
             # This is missing from the Rocksdb installer (needed for Rocksdb).
+            # 'sudo apt-get install -y --allow-downgrades gcc-9-base=9.3.0-17ubuntu1~20.04',
+            
+            'sudo apt-get install -y --allow-downgrades libc6=2.31-0ubuntu9.2',
+            'sudo apt-get install -y libc6-i386',
+            
+            'sudo apt-get install -y lib32gcc-s1',
+            'sudo apt-get install -y lib32stdc++6',
+            
+            'sudo apt-get install -y libclang-common-10-dev=1:10.0.0-4ubuntu1',
+            
+            'sudo apt-get install -y clang-12',
             'sudo apt-get install -y clang',
+            'sudo apt-get install -y git',
 
             # Clone the repo.
             f'(git clone {self.settings.repo_url} || (cd {self.settings.repo_name} ; git pull))'
         ]
-        hosts = self.manager.hosts(flat=True)
+        hosts = ["101.37.20.201", "120.55.181.202"]
         try:
-            g = Group(*hosts, user='ubuntu', connect_kwargs=self.connect)
+            g = Group(*hosts, user='root', connect_kwargs=self.connect)
             g.run(' && '.join(cmd), hide=True)
             Print.heading(f'Initialized testbed of {len(hosts)} nodes')
         except (GroupException, ExecutionError) as e:
@@ -85,63 +99,64 @@ class Bench:
     def kill(self, hosts=[], delete_logs=False):
         assert isinstance(hosts, list)
         assert isinstance(delete_logs, bool)
-        hosts = hosts if hosts else self.manager.hosts(flat=True)
+        hosts = hosts if hosts else ["101.37.20.201", "120.55.181.202"]
         delete_logs = CommandMaker.clean_logs() if delete_logs else 'true'
         cmd = [delete_logs, f'({CommandMaker.kill()} || true)']
         try:
-            g = Group(*hosts, user='ubuntu', connect_kwargs=self.connect)
+            g = Group(*hosts, user='root', connect_kwargs=self.connect)
             g.run(' && '.join(cmd), hide=True)
         except GroupException as e:
             raise BenchError('Failed to kill nodes', FabricError(e))
 
-    def _select_hosts(self, bench_parameters):
-        # Collocate the primary and its workers on the same machine.
-        if bench_parameters.collocate:
-            nodes = max(bench_parameters.nodes)
+    # def _select_hosts(self, bench_parameters):
+    #     # Collocate the primary and its workers on the same machine.
+    #     if bench_parameters.collocate:
+    #         nodes = max(bench_parameters.nodes)
 
-            # Ensure there are enough hosts.
-            hosts = self.manager.hosts()
-            if sum(len(x) for x in hosts.values()) < nodes:
-                return []
+    #         # Ensure there are enough hosts.
+    #         hosts = self.manager.hosts()
+    #         if sum(len(x) for x in hosts.values()) < nodes:
+    #             return []
 
-            # Select the hosts in different data centers.
-            ordered = zip(*hosts.values())
-            ordered = [x for y in ordered for x in y]
-            return ordered[:nodes]
+    #         # Select the hosts in different data centers.
+    #         ordered = zip(*hosts.values())
+    #         ordered = [x for y in ordered for x in y]
+    #         return ordered[:nodes]
 
-        # Spawn the primary and each worker on a different machine. Each
-        # authority runs in a single data center.
-        else:
-            primaries = max(bench_parameters.nodes)
+    #     # Spawn the primary and each worker on a different machine. Each
+    #     # authority runs in a single data center.
+    #     else:
+    #         primaries = max(bench_parameters.nodes)
 
-            # Ensure there are enough hosts.
-            hosts = self.manager.hosts()
-            if len(hosts.keys()) < primaries:
-                return []
-            for ips in hosts.values():
-                if len(ips) < bench_parameters.workers + 1:
-                    return []
+    #         # Ensure there are enough hosts.
+    #         hosts = self.manager.hosts()
+    #         if len(hosts.keys()) < primaries:
+    #             return []
+    #         for ips in hosts.values():
+    #             if len(ips) < bench_parameters.workers + 1:
+    #                 return []
 
-            # Ensure the primary and its workers are in the same region.
-            selected = []
-            for region in list(hosts.keys())[:primaries]:
-                ips = list(hosts[region])[:bench_parameters.workers + 1]
-                selected.append(ips)
-            return selected
+    #         # Ensure the primary and its workers are in the same region.
+    #         selected = []
+    #         for region in list(hosts.keys())[:primaries]:
+    #             ips = list(hosts[region])[:bench_parameters.workers + 1]
+    #             selected.append(ips)
+    #         return selected
 
     def _background_run(self, host, command, log_file):
         name = splitext(basename(log_file))[0]
         cmd = f'tmux new -d -s "{name}" "{command} |& tee {log_file}"'
-        c = Connection(host, user='ubuntu', connect_kwargs=self.connect)
+        c = Connection(host, user='root', connect_kwargs=self.connect)
+        print(cmd)
         output = c.run(cmd, hide=True)
         self._check_stderr(output)
 
-    def _update(self, hosts, collocate):
-        if collocate:
-            ips = list(set(hosts))
-        else:
-            ips = list(set([x for y in hosts for x in y]))
-
+    def _update(self, hosts):
+        # if collocate:
+        #     ips = list(set(hosts))
+        # else:
+        #     ips = list(set([x for y in hosts for x in y]))
+        ips = list(set(hosts))
         Print.info(
             f'Updating {len(ips)} machines (branch "{self.settings.branch}")...'
         )
@@ -155,7 +170,8 @@ class Bench:
                 f'./{self.settings.repo_name}/target/release/'
             )
         ]
-        g = Group(*ips, user='ubuntu', connect_kwargs=self.connect)
+        g = Group(*ips, user='root', connect_kwargs=self.connect)
+        print(cmd)
         g.run(' && '.join(cmd), hide=True)
 
     def _config(self, hosts, node_parameters, bench_parameters):
@@ -181,8 +197,18 @@ class Bench:
             subprocess.run(cmd, check=True)
             keys += [Key.from_file(filename)]
 
-        names = [x.name for x in keys]
 
+        
+        json_file = open('./ips.json')
+        temp = json.load(json_file)
+        names = []
+        hosts = []
+        for info in temp['ip_list']:
+            names.append(info['name'])
+            for x in info['ip']:
+                hosts.append(x)
+                
+            
         if bench_parameters.collocate:
             workers = bench_parameters.workers
             addresses = OrderedDict(
@@ -192,7 +218,7 @@ class Bench:
             addresses = OrderedDict(
                 (x, y) for x, y in zip(names, hosts)
             )
-        committee = Committee(addresses, self.settings.base_port)
+        committee = Committee(addresses, 5000)
         committee.print(PathMaker.committee_file())
 
         node_parameters.print(PathMaker.parameters_file())
@@ -202,7 +228,7 @@ class Bench:
         progress = progress_bar(names, prefix='Uploading config files:')
         for i, name in enumerate(progress):
             for ip in committee.ips(name):
-                c = Connection(ip, user='ubuntu', connect_kwargs=self.connect)
+                c = Connection(ip, user='root', connect_kwargs=self.connect)
                 c.run(f'{CommandMaker.cleanup()} || true', hide=True)
                 c.put(PathMaker.committee_file(), '.')
                 c.put(PathMaker.key_file(i), '.')
@@ -282,7 +308,7 @@ class Bench:
         for i, addresses in enumerate(progress):
             for id, address in addresses:
                 host = Committee.ip(address)
-                c = Connection(host, user='ubuntu', connect_kwargs=self.connect)
+                c = Connection(host, user='root', connect_kwargs=self.connect)
                 c.get(
                     PathMaker.client_log_file(i, id), 
                     local=PathMaker.client_log_file(i, id)
@@ -296,7 +322,7 @@ class Bench:
         progress = progress_bar(primary_addresses, prefix='Downloading primaries logs:')
         for i, address in enumerate(progress):
             host = Committee.ip(address)
-            c = Connection(host, user='ubuntu', connect_kwargs=self.connect)
+            c = Connection(host, user='root', connect_kwargs=self.connect)
             c.get(
                 PathMaker.primary_log_file(i), 
                 local=PathMaker.primary_log_file(i)
@@ -316,14 +342,14 @@ class Bench:
             raise BenchError('Invalid nodes or bench parameters', e)
 
         # Select which hosts to use.
-        selected_hosts = self._select_hosts(bench_parameters)
+        selected_hosts = ["47.97.248.211", "47.97.214.66", "120.55.49.40", "47.97.109.154"]
         if not selected_hosts:
             Print.warn('There are not enough instances available')
             return
 
         # Update nodes.
         try:
-            self._update(selected_hosts, bench_parameters.collocate)
+            self._update(selected_hosts)
         except (GroupException, ExecutionError) as e:
             e = FabricError(e) if isinstance(e, GroupException) else e
             raise BenchError('Failed to update nodes', e)

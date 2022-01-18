@@ -4,8 +4,8 @@ from fabric import task
 from benchmark.local import LocalBench
 from benchmark.logs import ParseError, LogParser
 from benchmark.utils import Print
-from benchmark.plot import Ploter, PlotError
-from benchmark.instance import InstanceManager
+# from benchmark.plot import Ploter, PlotError
+# from benchmark.instance import InstanceManager
 from benchmark.remote import Bench, BenchError
 
 
@@ -94,7 +94,7 @@ def install(ctx):
 def remote(ctx, debug=False):
     ''' Run benchmarks on AWS '''
     bench_params = {
-        'faults': 3,
+        'faults': 2,
         'nodes': [10],
         'workers': 1,
         'collocate': True,
