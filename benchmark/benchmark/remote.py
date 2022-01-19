@@ -201,13 +201,11 @@ class Bench:
             cmd = CommandMaker.generate_key(filename).split()
             subprocess.run(cmd, check=True)
             keys += [Key.from_file(filename)]
-
+        names = [x.name for x in keys]
         json_file = open('./ips.json')
         temp = json.load(json_file)
-        names = []
         hosts = []
         for info in temp['ip_list']:
-            names.append(info['name'])
             for x in info['ip']:
                 hosts.append(x)     
         
