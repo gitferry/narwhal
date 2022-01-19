@@ -59,7 +59,7 @@ class Bench:
             'sudo apt-get update',
             'sudo apt-get -y upgrade',
             'sudo apt-get -y autoremove',
-
+            'sudo apt-get -y g++=4:9.2',
             # The following dependencies prevent the error: [error: linker `cc` not found].
             'sudo apt-get -y install build-essential',
             'sudo apt-get -y install cmake',
@@ -74,7 +74,8 @@ class Bench:
             
             'sudo apt-get install -y --allow-downgrades libc6=2.31-0ubuntu9.2',
             'sudo apt-get install -y libc6-i386',
-            
+            'sudo apt-get install -y libstdc++-9-dev',
+            'sudo apt-get install -y libobjc-9-dev',
             'sudo apt-get install -y lib32gcc-s1',
             'sudo apt-get install -y lib32stdc++6',
             
