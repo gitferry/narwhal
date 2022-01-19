@@ -351,11 +351,11 @@ class Bench:
             return
 
         # Update nodes.
-        # try:
-        #     self._update(selected_hosts)
-        # except (GroupException, ExecutionError) as e:
-        #     e = FabricError(e) if isinstance(e, GroupException) else e
-        #     raise BenchError('Failed to update nodes', e)
+        try:
+            self._update(selected_hosts)
+        except (GroupException, ExecutionError) as e:
+            e = FabricError(e) if isinstance(e, GroupException) else e
+            raise BenchError('Failed to update nodes', e)
 
         # Upload all configuration files.
         try:
