@@ -92,7 +92,7 @@ class Bench:
             # Clone the repo.
             f'(git clone {self.settings.repo_url} || (cd {self.settings.repo_name} ; git pull))'
         ]
-        hosts = ["121.40.83.225", "121.40.199.163", "47.96.191.198", "120.26.55.59", "120.26.55.151", "121.40.253.137", "121.199.25.165", "116.62.144.249", "121.40.190.103", "120.26.47.17"]
+        hosts = ["47.251.10.1", "47.251.7.2", "47.88.26.169", "47.251.10.142", "47.251.8.30", "47.251.9.144", "47.251.9.75", "47.88.29.231", "47.251.0.56", "47.251.10.54"]
         try:
             g = Group(*hosts, user='root', connect_kwargs=self.connect)
             g.run(' && '.join(cmd), hide=True)
@@ -104,7 +104,7 @@ class Bench:
     def kill(self, hosts=[], delete_logs=False):
         assert isinstance(hosts, list)
         assert isinstance(delete_logs, bool)
-        hosts = hosts if hosts else ["121.40.83.225", "121.40.199.163", "47.96.191.198", "120.26.55.59", "120.26.55.151", "121.40.253.137", "121.199.25.165", "116.62.144.249", "121.40.190.103", "120.26.47.17"]
+        hosts = hosts if hosts else ["47.251.10.1", "47.251.7.2", "47.88.26.169", "47.251.10.142", "47.251.8.30", "47.251.9.144", "47.251.9.75", "47.88.29.231", "47.251.0.56", "47.251.10.54"]
         delete_logs = CommandMaker.clean_logs() if delete_logs else 'true'
         cmd = [delete_logs, f'({CommandMaker.kill()} || true)']
         try:
@@ -345,7 +345,7 @@ class Bench:
             raise BenchError('Invalid nodes or bench parameters', e)
 
         # Select which hosts to use.
-        selected_hosts = ["121.40.83.225", "121.40.199.163", "47.96.191.198", "120.26.55.59", "120.26.55.151", "121.40.253.137", "121.199.25.165", "116.62.144.249", "121.40.190.103", "120.26.47.17"]
+        selected_hosts = ["47.251.10.1", "47.251.7.2", "47.88.26.169", "47.251.10.142", "47.251.8.30", "47.251.9.144", "47.251.9.75", "47.88.29.231", "47.251.0.56", "47.251.10.54"]
         if not selected_hosts:
             Print.warn('There are not enough instances available')
             return
