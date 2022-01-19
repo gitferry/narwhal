@@ -59,8 +59,12 @@ class Bench:
             'sudo apt-get update',
             'sudo apt-get -y upgrade',
             'sudo apt-get -y autoremove',
-            'sudo apt-get -y install g++=4:9.2',
+            
             # The following dependencies prevent the error: [error: linker `cc` not found].
+            'sudo apt-get -y install gcc-9-base=9.3.0-17ubuntu1~20.04',
+            'sudo apt-get -y install gcc-9=9.3.0-17ubuntu1~20.04',
+            'sudo apt-get -y install libstdc++-9-dev=9.3.0-17ubuntu1~20.04',
+            'sudo apt-get -y install g++',
             'sudo apt-get -y install build-essential',
             'sudo apt-get -y install cmake',
             'sudo apt-get -y install tmux',
