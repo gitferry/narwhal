@@ -63,7 +63,7 @@ class Bench:
             # The following dependencies prevent the error: [error: linker `cc` not found].
             'sudo apt-get -y install build-essential',
             'sudo apt-get -y install cmake',
-
+            'sudo apt-get -y install tmux',
             # Install rust (non-interactive).
             'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y',
             'source $HOME/.cargo/env',
@@ -87,7 +87,7 @@ class Bench:
             # Clone the repo.
             f'(git clone {self.settings.repo_url} || (cd {self.settings.repo_name} ; git pull))'
         ]
-        hosts = ["101.37.20.201", "120.55.181.202"]
+        hosts = ["121.40.83.225", "121.40.199.163", "47.96.191.198", "120.26.55.59", "120.26.55.151", "121.40.253.137", "121.199.25.165", "116.62.144.249", "121.40.190.103", "120.26.47.17"]
         try:
             g = Group(*hosts, user='root', connect_kwargs=self.connect)
             g.run(' && '.join(cmd), hide=True)
@@ -99,7 +99,7 @@ class Bench:
     def kill(self, hosts=[], delete_logs=False):
         assert isinstance(hosts, list)
         assert isinstance(delete_logs, bool)
-        hosts = hosts if hosts else ["101.37.20.201", "120.55.181.202"]
+        hosts = hosts if hosts else ["121.40.83.225", "121.40.199.163", "47.96.191.198", "120.26.55.59", "120.26.55.151", "121.40.253.137", "121.199.25.165", "116.62.144.249", "121.40.190.103", "120.26.47.17"]
         delete_logs = CommandMaker.clean_logs() if delete_logs else 'true'
         cmd = [delete_logs, f'({CommandMaker.kill()} || true)']
         try:
@@ -204,9 +204,7 @@ class Bench:
         for info in temp['ip_list']:
             names.append(info['name'])
             for x in info['ip']:
-                hosts.append(x)
-        # print("here11")
-        # print(hosts)        
+                hosts.append(x)     
         
         if bench_parameters.collocate:
             workers = bench_parameters.workers
@@ -217,7 +215,6 @@ class Bench:
             addresses = OrderedDict(
                 (x, y) for x, y in zip(names, hosts)
             )
-        print(addresses)
         committee = Committee(addresses, 5000)
         committee.print(PathMaker.committee_file())
 
@@ -227,8 +224,6 @@ class Bench:
         
         names = names[:len(names)-bench_parameters.faults]
         progress = progress_bar(names, prefix='Uploading config files:')
-        print("here")
-        print(bench_parameters.faults)
         for i, name in enumerate(progress):
             for ip in committee.ips(name):
                 c = Connection(ip, user='root', connect_kwargs=self.connect)
@@ -345,17 +340,17 @@ class Bench:
             raise BenchError('Invalid nodes or bench parameters', e)
 
         # Select which hosts to use.
-        selected_hosts = ["101.37.20.201", "120.55.181.202"]
+        selected_hosts = ["121.40.83.225", "121.40.199.163", "47.96.191.198", "120.26.55.59", "120.26.55.151", "121.40.253.137", "121.199.25.165", "116.62.144.249", "121.40.190.103", "120.26.47.17"]
         if not selected_hosts:
             Print.warn('There are not enough instances available')
             return
 
         # Update nodes.
-        try:
-            self._update(selected_hosts)
-        except (GroupException, ExecutionError) as e:
-            e = FabricError(e) if isinstance(e, GroupException) else e
-            raise BenchError('Failed to update nodes', e)
+        # try:
+        #     self._update(selected_hosts)
+        # except (GroupException, ExecutionError) as e:
+        #     e = FabricError(e) if isinstance(e, GroupException) else e
+        #     raise BenchError('Failed to update nodes', e)
 
         # Upload all configuration files.
         try:
