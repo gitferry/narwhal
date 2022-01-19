@@ -59,7 +59,7 @@ class Bench:
             'sudo apt-get update',
             'sudo apt-get -y upgrade',
             'sudo apt-get -y autoremove',
-            'sudo apt-get -y g++=4:9.2',
+            'sudo apt-get -y install g++=4:9.2',
             # The following dependencies prevent the error: [error: linker `cc` not found].
             'sudo apt-get -y install build-essential',
             'sudo apt-get -y install cmake',
