@@ -11,6 +11,7 @@ from math import ceil
 from copy import deepcopy
 import subprocess
 import json
+import paramiko
 from benchmark.config import Committee, Key, NodeParameters, BenchParameters, ConfigError
 from benchmark.utils import BenchError, Print, PathMaker, progress_bar
 from benchmark.commands import CommandMaker
@@ -35,6 +36,14 @@ class Bench:
     def __init__(self, ctx):
         self.manager = InstanceManager.make()
         self.settings = self.manager.settings
+        json_file = open('./ips.json')
+        temp = json.load(json_file)
+        hosts = []
+        for info in temp['ip_list']:
+            for x in info['ip']:
+                hosts.append(x)     
+        
+        self.hosts = hosts
         try:
             ctx.connect_kwargs.pkey = RSAKey.from_private_key_file(
                 self.manager.settings.key_path
@@ -92,7 +101,7 @@ class Bench:
             # Clone the repo.
             f'(git clone {self.settings.repo_url} || (cd {self.settings.repo_name} ; git pull))'
         ]
-        hosts = ["47.251.10.1", "47.251.7.2", "47.88.26.169", "47.251.10.142", "47.251.8.30", "47.251.9.144", "47.251.9.75", "47.88.29.231", "47.251.0.56", "47.251.10.54"]
+        hosts = self.hosts
         try:
             g = Group(*hosts, user='root', connect_kwargs=self.connect)
             g.run(' && '.join(cmd), hide=True)
@@ -104,7 +113,7 @@ class Bench:
     def kill(self, hosts=[], delete_logs=False):
         assert isinstance(hosts, list)
         assert isinstance(delete_logs, bool)
-        hosts = hosts if hosts else ["47.251.10.1", "47.251.7.2", "47.88.26.169", "47.251.10.142", "47.251.8.30", "47.251.9.144", "47.251.9.75", "47.88.29.231", "47.251.0.56", "47.251.10.54"]
+        hosts = hosts if hosts else self.hosts
         delete_logs = CommandMaker.clean_logs() if delete_logs else 'true'
         cmd = [delete_logs, f'({CommandMaker.kill()} || true)']
         try:
@@ -181,7 +190,7 @@ class Bench:
 
     def _config(self, hosts, node_parameters, bench_parameters):
         Print.info('Generating configuration files...')
-
+        
         # Cleanup all local configuration files.
         cmd = CommandMaker.cleanup()
         subprocess.run([cmd], shell=True, stderr=subprocess.DEVNULL)
@@ -195,6 +204,7 @@ class Bench:
         subprocess.run([cmd], shell=True)
 
         # Generate configuration files.
+        hosts = self.hosts
         keys = []
         key_files = [PathMaker.key_file(i) for i in range(len(hosts))]
         for filename in key_files:
@@ -202,13 +212,7 @@ class Bench:
             subprocess.run(cmd, check=True)
             keys += [Key.from_file(filename)]
         names = [x.name for x in keys]
-        json_file = open('./ips.json')
-        temp = json.load(json_file)
-        hosts = []
-        for info in temp['ip_list']:
-            for x in info['ip']:
-                hosts.append(x)     
-        
+    
         if bench_parameters.collocate:
             workers = bench_parameters.workers
             addresses = OrderedDict(
@@ -343,7 +347,7 @@ class Bench:
             raise BenchError('Invalid nodes or bench parameters', e)
 
         # Select which hosts to use.
-        selected_hosts = ["47.251.10.1", "47.251.7.2", "47.88.26.169", "47.251.10.142", "47.251.8.30", "47.251.9.144", "47.251.9.75", "47.88.29.231", "47.251.0.56", "47.251.10.54"]
+        selected_hosts = self.hosts
         if not selected_hosts:
             Print.warn('There are not enough instances available')
             return
