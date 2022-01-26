@@ -49,8 +49,11 @@ class Committee:
                 ...
             }
         '''
+        print("here")
+        print(addresses)
         assert isinstance(addresses, OrderedDict)
         assert all(isinstance(x, str) for x in addresses.keys())
+            
         assert all(
             isinstance(x, list) and len(x) > 1 for x in addresses.values()
         )

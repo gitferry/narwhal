@@ -1,6 +1,6 @@
 # Copyright(C) Facebook, Inc. and its affiliates.
-import boto3
-from botocore.exceptions import ClientError
+# import boto3
+# from botocore.exceptions import ClientError
 from collections import defaultdict, OrderedDict
 from time import sleep
 
@@ -24,8 +24,8 @@ class InstanceManager:
         assert isinstance(settings, Settings)
         self.settings = settings
         self.clients = OrderedDict()
-        for region in settings.aws_regions:
-            self.clients[region] = boto3.client('ec2', region_name=region)
+        # for region in settings.aws_regions:
+        #     self.clients[region] = boto3.client('ec2', region_name=region)
 
     @classmethod
     def make(cls, settings_file='settings.json'):
