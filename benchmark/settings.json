@@ -1,7 +1,7 @@
 {
     "key": {
         "name": "aws-fb",
-        "path": "/Users/yangxiaoan/.ssh/id_rsa"
+        "path": "/Users/lanpo/.ssh/id_rsa"
     },
     "port": 5000,
     "repo": {
