@@ -4,15 +4,12 @@ DEPLOY_FILE=$(jq '.server.dir' settings.json | sed 's/\"//g')
 DEPLOY_IPS_FILE=$(jq '.server.ips_file' settings.json | sed 's/\"//g')
 
 distribute(){
+    echo "Uploading binaries..."
     for line in $(cat $DEPLOY_IPS_FILE)
     do
-      ssh $DEPLOY_NAME@$line "mkdir ~/$DEPLOY_FILE"&
-    done
-    wait
-    echo "Uploading repo..."
-    for line in $(cat $DEPLOY_IPS_FILE)
-    do
-      scp -r ~/narwhal $DEPLOY_NAME@$line:~/$DEPLOY_FILE&
+    {
+      scp benchmark_client node $DEPLOY_NAME@$line:~/; chmod 777 benchmark_client; chmod 777 node
+    }&
     done
     wait
     echo "Upload success!"

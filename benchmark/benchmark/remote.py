@@ -97,7 +97,7 @@ class Bench:
             'sudo apt-get install -y git',
 
             # Clone the repo.
-            # f'(git clone {self.settings.repo_url} || (cd {self.settings.repo_name} ; git pull))'
+            f'(cd {self.settings.repo_name})'
         ]
         hosts = self.hosts
         try:
@@ -351,11 +351,11 @@ class Bench:
             return
 
         # Update nodes.
-        try:
-            self._update(selected_hosts)
-        except (GroupException, ExecutionError) as e:
-            e = FabricError(e) if isinstance(e, GroupException) else e
-            raise BenchError('Failed to update nodes', e)
+        # try:
+        #     self._update(selected_hosts)
+        # except (GroupException, ExecutionError) as e:
+        #     e = FabricError(e) if isinstance(e, GroupException) else e
+        #     raise BenchError('Failed to update nodes', e)
 
         # Upload all configuration files.
         try:

@@ -18,6 +18,6 @@
     },
      "server": {
         "dir": "narwhal",
-        "ips_file": "ips.txt"
+        "ips_file": "ips.json"
     }
 }
