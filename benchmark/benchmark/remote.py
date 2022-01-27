@@ -36,12 +36,10 @@ class Bench:
     def __init__(self, ctx):
         self.manager = InstanceManager.make()
         self.settings = self.manager.settings
-        json_file = open('./ips.json')
-        temp = json.load(json_file)
+        ip_file = open('./auth/server_auth.txt')
         hosts = []
-        for info in temp['ip_list']:
-            for x in info['ip']:
-                hosts.append(x)     
+        for ip in ip_file.readlines():
+            hosts.append(ip.strip())     
         
         self.hosts = hosts
         try:
@@ -99,7 +97,7 @@ class Bench:
             'sudo apt-get install -y git',
 
             # Clone the repo.
-            f'(git clone {self.settings.repo_url} || (cd {self.settings.repo_name} ; git pull))'
+            # f'(git clone {self.settings.repo_url} || (cd {self.settings.repo_name} ; git pull))'
         ]
         hosts = self.hosts
         try:
@@ -175,9 +173,9 @@ class Bench:
             f'Updating {len(ips)} machines (branch "{self.settings.branch}")...'
         )
         cmd = [
-            f'(cd {self.settings.repo_name} && git fetch -f)',
-            f'(cd {self.settings.repo_name} && git checkout -f {self.settings.branch})',
-            f'(cd {self.settings.repo_name} && git pull -f)',
+            # f'(cd {self.settings.repo_name} && git fetch -f)',
+            # f'(cd {self.settings.repo_name} && git checkout -f {self.settings.branch})',
+            # f'(cd {self.settings.repo_name} && git pull -f)',
             'source $HOME/.cargo/env',
             f'(cd {self.settings.repo_name}/node && {CommandMaker.compile()})',
             CommandMaker.alias_binaries(
