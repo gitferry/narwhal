@@ -1,7 +1,7 @@
 {
     "key": {
         "name": "aws-fb",
-        "path": "/Users/lanpo/.ssh/id_rsa"
+        "path": "/root/.ssh/id_rsa"
     },
     "port": 5000,
     "repo": {
@@ -18,6 +18,6 @@
     },
      "server": {
         "dir": "narwhal",
-        "ips_file": "ips.json"
+        "ips_file": "auth/server_auth.txt"
     }
 }

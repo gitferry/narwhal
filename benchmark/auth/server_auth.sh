@@ -5,7 +5,7 @@ echo "================== basic info ================="
 AUTH_NAME=$(jq '.user' server_auth.json | sed 's/\"//g')
 AUTH_PASS=$(jq '.password' server_auth.json | sed 's/\"//g')
 
-AUTH_PATH=~/.ssh/server_auth.pub
+AUTH_PATH=~/.ssh/id_rsa.pub
 
 echo 'user: ' "$AUTH_NAME"
 echo 'pass: ' "$AUTH_PASS"

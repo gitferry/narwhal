@@ -8,11 +8,20 @@ distribute(){
     for line in $(cat $DEPLOY_IPS_FILE)
     do
     {
-      scp benchmark_client node $DEPLOY_NAME@$line:~/; chmod 777 benchmark_client; chmod 777 node
+	    scp ../target/release/benchmark_client ../target/release/node install.sh $DEPLOY_NAME@$line:~/
     }&
     done
     wait
     echo "Upload success!"
+    echo "Installing..."
+    for line in $(cat $DEPLOY_IPS_FILE)
+    do
+    {
+	    ssh $DEPLOY_NAME@$line "chmod 777 install.sh; ./install.sh"
+    }&
+    done
+    wait
+    echo "Install success!"
 }
 
 # distribute files

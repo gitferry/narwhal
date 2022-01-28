@@ -68,36 +68,36 @@ class Bench:
             'sudo apt-get -y autoremove',
             
             # The following dependencies prevent the error: [error: linker `cc` not found].
-            'sudo apt-get -y --allow-downgrades install gcc-9-base=9.3.0-17ubuntu1~20.04',
-            'sudo apt-get -y --allow-downgrades install gcc-9=9.3.0-17ubuntu1~20.04',
-            'sudo apt-get -y --allow-downgrades install libstdc++-9-dev=9.3.0-17ubuntu1~20.04',
-            'sudo apt-get -y --allow-downgrades install g++',
-            'sudo apt-get -y install build-essential',
-            'sudo apt-get -y install cmake',
+            # 'sudo apt-get -y --allow-downgrades install gcc-9-base=9.3.0-17ubuntu1~20.04',
+            # 'sudo apt-get -y --allow-downgrades install gcc-9=9.3.0-17ubuntu1~20.04',
+            # 'sudo apt-get -y --allow-downgrades install libstdc++-9-dev=9.3.0-17ubuntu1~20.04',
+            # 'sudo apt-get -y --allow-downgrades install g++',
+            # 'sudo apt-get -y install build-essential',
+            # 'sudo apt-get -y install cmake',
             'sudo apt-get -y install tmux',
             # Install rust (non-interactive).
-            'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y',
-            'source $HOME/.cargo/env',
-            'rustup default stable',
+            # 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y',
+            # 'source $HOME/.cargo/env',
+            # 'rustup default stable',
 
             # This is missing from the Rocksdb installer (needed for Rocksdb).
             # 'sudo apt-get install -y --allow-downgrades gcc-9-base=9.3.0-17ubuntu1~20.04',
             
-            'sudo apt-get install -y --allow-downgrades libc6=2.31-0ubuntu9.2',
-            'sudo apt-get install -y libc6-i386',
-            'sudo apt-get install -y libstdc++-9-dev',
-            'sudo apt-get install -y libobjc-9-dev',
-            'sudo apt-get install -y lib32gcc-s1',
-            'sudo apt-get install -y lib32stdc++6',
+            # 'sudo apt-get install -y --allow-downgrades libc6=2.31-0ubuntu9.2',
+            # 'sudo apt-get install -y libc6-i386',
+            # 'sudo apt-get install -y libstdc++-9-dev',
+            # 'sudo apt-get install -y libobjc-9-dev',
+            # 'sudo apt-get install -y lib32gcc-s1',
+            # 'sudo apt-get install -y lib32stdc++6',
             
-            'sudo apt-get install -y libclang-common-10-dev=1:10.0.0-4ubuntu1',
+            # 'sudo apt-get install -y libclang-common-10-dev=1:10.0.0-4ubuntu1',
             
-            'sudo apt-get install -y clang-12',
-            'sudo apt-get install -y clang',
-            'sudo apt-get install -y git',
+            # 'sudo apt-get install -y clang-12',
+            # 'sudo apt-get install -y clang',
+            # 'sudo apt-get install -y git',
 
             # Clone the repo.
-            f'(cd {self.settings.repo_name})'
+            # f'(cd {self.settings.repo_name})'
         ]
         hosts = self.hosts
         try:
